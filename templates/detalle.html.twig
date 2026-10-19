@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Detalle de la reserva</h1>
+    <p>{{ reserva.nombre_huesped }}</p>
+    <ul>
+    {% for evento in eventos %}
+        <li>{{ evento.descripcion }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

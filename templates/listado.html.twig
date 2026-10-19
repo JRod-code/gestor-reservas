@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Listado general</h1>
+    <ul>
+    {% for reserva in reservas %}
+        <li>{{ reserva.nombre_huesped }} - {{ reserva.estado }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
