@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8"><title>{% block title %}Gestor de reservas{% endblock %}</title>
-</head>
-<body>
-    {% block body %}{% endblock %}
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Gestor de reservas{% endblock %}</title>
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+    <body>
+        <header class="navbar">
+            <div class="container">
+                <span class="logo">Aplicación de gestión de reservas</span>
+            </div>
+        </header>
+        <main class="container main-content">
+            {% block body %}{% endblock %}
+        </main>
+        <footer class="footer">
+            <p>&copy; 2026 Gestor de reservas</p>
+        </footer>
+        {% block scripts %}
+            <script src="js/app.js"></script>
+        {% endblock %}
+    </body>
 </html>

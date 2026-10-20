@@ -1,10 +1,84 @@
 {% extends 'base.html.twig' %}
+
+{% block title %}Detalle de la reserva #{{ reserva.id }} {% endblock %}
+
 {% block body %}
-    <h1>Detalle de la reserva</h1>
-    <p>{{ reserva.nombre_huesped }}</p>
-    <ul>
-    {% for evento in eventos %}
-        <li>{{ evento.descripcion }}</li>
-    {% endfor %}
-    </ul>
+    <section class="view-section" style="max-width: 900px; margin: 0 auto;">
+    
+        <div class="back-nav">
+            <a href="index.php?action=listado" class="btn btn-secondary">&larr; Regresar al listado general</a>
+        </div>
+
+        <!-- Detalle de la reserva -->
+        <div class="card detail-card" id="detailCardContainer" data-reserva-id="{{ reserva.id }}">
+            <div class="detail-header">
+                <h2>Detalle de registro: Reserva #{{ reserva.id }}</h2>
+                <span id="detailBadge" class="badge badge-{{ reserva.estado }}">{{ reserva.estado }}</span>
+            </div>
+
+            <div class="alert" id="detailAlert" style="display: none;"></div>
+
+            <div class="detail-grid-2">
+                <div class="info-block">
+                    <span class="block-label">Huésped Titular</span>
+                    <p class="block-value">{{ reserva.nombre_huesped }}</p>
+                    <p class="block-subtext"> {{ reserva.email_huesped }}</p>
+                </div>
+                <div class="info-block">
+                    <span class="block-label">Alojamiento Asignado</span>
+                    <p class="block-value"> {{ reserva.nombre_alojamiento }}</p>
+                </div>
+            </div>
+
+            <div class="detail-strip">
+                <div class="strip-item">
+                    <span class="strip-label">📅 Check-in</span>
+                    <strong>{{ reserva.fecha_entrada|date('d/m/Y') }}</strong>
+                </div>
+                <div class="strip-item">
+                    <span class="strip-label">📅 Check-out</span>
+                    <strong>{{ reserva.fecha_salida|date('d/m/Y') }}</strong>
+                </div>
+                <div class="strip-item">
+                    <span class="strip-label">Importe</span>
+                    <strong class="text-success text-large">{{ reserva.importe|number_format(2, ',', '.') }} €</strong>
+                </div>
+            </div>
+
+            <div class="info-block" style="margin-top: 20px;">
+                <span class="block-label">Observaciones</span>
+                <div class="notes-box">
+                    <p>{{ reserva.notas ? reserva.notas : 'No existen anotaciones particulares para esta estancia.' }}</p>
+                </div>
+            </div>
+
+            <div class="detail-actions" id="detailActionsWrapper">
+                {% if reserva.estado != 'cancelada' %}
+                    <button type="button" class="btn btn-danger btn-cancelar-reserva" data-id="{{ reserva.id }}" data-contexto="detalle">Cancelar reserva</button>
+                {% else %}
+                    <p class="text-danger text-bold">⚠️ Esta reserva ha sido cancelada.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Historial de registros -->
+        <div class="card timeline-card" style="margin-top: 30px;">
+            <h3 class="card-title">Historial de registros</h3>
+        
+            <div class="timeline-container" id="timelineContainer">
+                {% for evento in eventos %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">⏰ {{ evento.fecha_creacion|date('d/m/Y H:i:s') }}</span>
+                            <strong class="timeline-type">[{{ evento.tipo }}]</strong>
+                            <p class="timeline-desc">{{ evento.descripcion }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No se registran eventos asociados a esta reserva.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
 {% endblock %}

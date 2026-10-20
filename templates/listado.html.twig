@@ -1,9 +1,143 @@
 {% extends 'base.html.twig' %}
+
+{% block title %}Control de reservas{% endblock %}
+
 {% block body %}
-    <h1>Listado general</h1>
-    <ul>
-    {% for reserva in reservas %}
-        <li>{{ reserva.nombre_huesped }} - {{ reserva.estado }}</li>
-    {% endfor %}
-    </ul>
+<section class="view-section">
+    <h1 class="section-title">Listado general</h1>
+
+    <!-- Filtros -->
+    <div class="card card-filter">
+        <h3 class="card-title">Filtros dinámicos</h3>
+        <form id="formFiltros" class="grid-filters">
+            <div class="form-group">
+                <label for="filtroBusqueda">Nombre del huésped</label>
+                <input type="text" id="filtroBusqueda" class="form-control" placeholder="Ej: Pérez o Gómez">
+            </div>
+            
+            <div class="form-group">
+                <label for="filtroEstado">Estado actual</label>
+                <select id="filtroEstado" class="form-control">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmada">Confirmada</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="filtroDesde">Entrada</label>
+                <input type="date" id="filtroDesde" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="filtroHasta">Salida</label>
+                <input type="date" id="filtroHasta" class="form-control">
+            </div>
+
+            <div class="form-group form-actions">
+                <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FEEDBACK VISUAL: Estado de carga -->
+    <div id="loadingAlert" class="alert alert-info" style="display: none;">
+        Sincronizando datos con el servidor en tiempo real...
+    </div>
+
+    <!-- FEEDBACK VISUAL: Alertas de éxito o error -->
+    <div id="globalAlert" class="alert" style="display: none;"></div>
+
+    <!-- Tabla de reservas -->
+    <div class="table-responsive">
+        <table class="main-table" id="tablaReservas">
+            <thead>
+                <tr>
+                    <th>Huésped</th>
+                    <th>Establecimiento</th>
+                    <th>Fechas de estancia</th>
+                    <th>Importe</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr id="reserva-row-{{ reserva.id }}">
+                    <td>
+                        <strong>{{ reserva.nombre_huesped }}</strong><br>
+                        <small class="text-muted">{{ reserva.email_huesped }}</small>
+                    </td>
+                    <td>{{ reserva.nombre_alojamiento }}</td>
+                    <td>{{ reserva.fecha_entrada|date('d/m/Y') }} al {{ reserva.fecha_salida|date('d/m/Y') }}</td>
+                    <td class="text-bold">{{ reserva.importe|number_format(2, ',', '.') }} €</td>
+                    <td class="status-cell">
+                        <span class="badge badge-{{ reserva.estado }}">{{ reserva.estado }}</span>
+                    </td>
+                    <td>
+                        <div class="actions-flex">
+                            <a href="index.php?action=detalle&id={{ reserva.id }}" class="btn btn-secondary btn-small">Ver detalle</a>
+                            {% if reserva.estado != 'cancelada' %}
+                            <button type="button" class="btn btn-danger btn-small btn-cancelar-reserva" data-id="{{ reserva.id }}" data-contexto="listado">Cancelar</button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr id="noRecordsRow">
+                    <td colspan="6" class="text-center text-muted">No se encuentran reservas bajo los criterios indicados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Nueva reserva -->
+    <div class="card card-form">
+        <h3 class="card-title">Nueva reserva</h3>
+        
+        <div id="errorSummary" class="alert alert-danger" style="display: none;"></div>
+
+        <form id="formNuevaReserva">
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label for="nombre_huesped">Nombre completo del huésped *</label>
+                    <input type="text" id="nombre_huesped" class="form-control" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label for="email_huesped">Correo electrónico *</label>
+                    <input type="email" id="email_huesped" class="form-control" placeholder="Ej: juan@example.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nombre_alojamiento">Alojamiento *</label>
+                <input type="text" id="nombre_alojamiento" class="form-control" placeholder="Ej: Apartamento Vistas Sol Madrid" required>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="fecha_entrada">Fecha de entrada (Check-in) *</label>
+                    <input type="date" id="fecha_entrada" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_salida">Fecha de salida (Check-out) *</label>
+                    <input type="date" id="fecha_salida" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="importe">Importe total (€) *</label>
+                    <input type="number" id="importe" class="form-control" step="0.01" min="0.01" placeholder="0,00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="notas">Notas u observaciones</label>
+                <textarea id="notas" class="form-control" rows="3" placeholder="Requerimientos especiales, camas supletorias, alergias, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-large">Guardar reserva</button>
+        </form>
+    </div>
+</section>
 {% endblock %}
