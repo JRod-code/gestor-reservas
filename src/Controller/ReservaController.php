@@ -87,7 +87,7 @@ class ReservaController {
             $id = $this->repository->crear($input);
             $this->responderJson(['id' => $id, 'mensaje' => 'Reserva guardada con éxito.'], 201);
         } catch (Exception $e) {
-            $this->responderJson(['error' => 'Error interno al guardar los datos.'], 500);
+            throw $e;
         }
     }
 
@@ -115,7 +115,7 @@ class ReservaController {
                 $this->responderJson(['error' => 'No se realizaron cambios en la reserva.'], 400);
             }
         } catch (Exception $e) {
-            $this->responderJson(['error' => 'Error al actualizar el estado.'], 500);
+            throw $e;
         }
     }
 
