@@ -1,6 +1,6 @@
 # Aplicación de Gestión de Reservas — Prueba Técnica
 
-*   **Enlace de la aplicación en producción**: [URL disponible tras el deploy]
+*   **Enlace a la aplicación en producción**: <https://gestor-reservas-w9nr.onrender.com/>
 
 ## Introducción
 Este proyecto consiste en una pequeña aplicación para la gestión, filtrado y cancelación asíncrona de reservas de alojamiento. El sistema se ha construido en PHP nativo sin utilizar ningún tipo de framework.
@@ -91,17 +91,21 @@ Si la aplicación tuviera que soportar tráfico masivo, implementaría los sigui
 2.  **Optimización e indexación de base de datos**: Para que el filtrado no colapse las lecturas al realizar barridos completos de tablas, el archivo `schema.sql` presentado ya incluye un **Índice Compuesto** en (`fecha_entrada`, `fecha_salida`) y un índice regular en `estado`, lo que acelera las consultas simultáneas en la API.
 3.  **Capa de caché intermedia**: Implementaría Redis en memoria para almacenar los resultados del listado general y los detalles de las reservas (con alta tasa de lectura y baja modificación), sirviendo las peticiones recurrentes de forma instantánea.
 4.  **Colas asíncronas**: Separaría la lógica de grabación del historial. En lugar de bloquear la transacción HTTP del cliente escribiendo en las tablas `reserva` y `reserva_evento` en la misma petición, delegando el registro de los eventos a una cola de RabbitMQ en segundo plano que lo inserte de forma diferida, liberando la respuesta al usuario.
+5. **Migración de almacenamiento**: Como la base de datos está alojada actualmente en un servidor con capacidad limitada, al aumentar el volumen de datos migraría a una instancia dedicada en la nube como AWS RDS. Esto permitirá ampliar el espacio en disco bajo demanda y garantizar la disponibilidad del servicio sin cortes.
 
 ## Cobertura de tests
 
-### 1. Pruebas unitarias (PHPUnit)
+### 1. Pruebas funcionales (Postman)
+Se empleó **Postman** durante el desarrollo del backend para testear los endpoints de la API de forma aislada, asegurando que las respuestas JSON, las validaciones de los campos obligatorios y los códigos de estado HTTP respondieran correctamente antes de conectar la interfaz.
+
+### 2. Pruebas unitarias (PHPUnit)
 Para ejecutar los archivos de pruebas unitarias en una consola local, ejecute:
 ```bash
 ./vendor/bin/phpunit tests
 ```
 *Resultado:* `OK (3 tests, 9 assertions)`. Valida de forma aislada mediante dobles de prueba (*Mocks*) que el controlador intercepte correos inválidos, bloquee fechas invertidas y responda con los códigos HTTP semánticos correctos (400 y 200).
 
-### 2. Pruebas manuales en el navegador
+### 3. Pruebas manuales en el navegador
 Realizadas en las herramientas de desarrollo del navegador (F12) para comprobar el comportamiento dinámico y las alertas visuales de éxito/error del JavaScript:
 
 *   **Test de fechas invertidas (HTTP 400):** Envía una fecha de salida anterior a la de entrada:
